@@ -36,7 +36,7 @@ namespace minisql::parser
 	};
 
 	template<typename TVal, typename TCombineFunc, typename ...TParsers>
-	auto make_combine(TCombineFunc combine_func, TParsers&&... parsers)->combine<TVal, TCombineFunc, TParsers...>;
+	auto make_combine(TCombineFunc combine_func, const TParsers&... parsers)->combine<TVal, TCombineFunc, TParsers...>;
 
 	/* implementation */
 	template <typename TVal, typename TCombineFunc, typename ... TParsers>
@@ -88,12 +88,6 @@ namespace minisql::parser
 		return std::apply(string_func, parsers);
 	}
 
-	template< typename TVal, typename TCombineFunc, typename ...TParsers >
-	inline void verify_pod()
-	{
-		static_assert(std::is_same_v<TVal, decltype(std::declval<TCombineFunc>()(std::declval<typename TParsers::value_type>()...))>, "T is not a pod");
-	}
-
 
 	template <typename TVal, typename TCombineFunc, typename ... TParsers>
 	auto combine<TVal, TCombineFunc, TParsers...>::parse(const std::string& input, unsigned& current_pos) const
@@ -116,9 +110,9 @@ namespace minisql::parser
 	}
 
 	template <typename TVal, typename TCombineFunc, typename ...TParsers>
-	auto make_combine(TCombineFunc combine_func, TParsers&&... parsers)
+	auto make_combine(TCombineFunc combine_func, const TParsers&... parsers)
 		-> combine<TVal, TCombineFunc, TParsers...>
 	{
-		return combine<TVal, TCombineFunc, TParsers...>(std::forward<TParsers>(parsers)..., std::forward<TCombineFunc>(combine_func));
+		return combine<TVal, TCombineFunc, TParsers...>(parsers..., combine_func);
 	}
 }

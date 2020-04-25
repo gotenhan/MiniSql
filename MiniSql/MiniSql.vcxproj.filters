@@ -21,14 +21,8 @@
     <ClCompile Include="MiniSql.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="parsers\zero_or_more.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="query.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="variadic_placeholder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -67,6 +61,27 @@
     </ClInclude>
     <ClInclude Include="parsers\number.h">
       <Filter>Header Files\parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="query_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_parser\select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_ast\select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_ast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_ast\ast_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_ast\expression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_parser\expression.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

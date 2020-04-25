@@ -7,11 +7,10 @@ namespace minisql::parser
 	class one_or_more final : public parser_base<std::vector<TVal>>
 	{
 		TParser _parser;
-	public:
-		one_or_more(const TParser& p);;
-		[[nodiscard]] std::string to_string() const override;
-	protected:
 		auto parse(const std::string& input, unsigned& current_pos) const -> parse_result<std::vector<TVal>> override;
+	public:
+		one_or_more(const TParser& p);
+		[[nodiscard]] std::string to_string() const override;
 	};
 
 	/* implementation */
@@ -30,14 +29,14 @@ namespace minisql::parser
 	auto one_or_more<TParser, TVal>::parse(const std::string& input,
 	                                       unsigned& current_pos) const -> parse_result<std::vector<TVal>>
 	{
-		parse_result<TVal> pr = _parser(input, current_pos);
-		if (!pr.success) return failure<std::vector<TVal>>(pr.error);
+		const auto first_pr = _parser(input, current_pos);
+		if (!first_pr.success) return failure<std::vector<TVal>>(first_pr.error);
 
 		std::vector<TVal> result;
-		result.push_back(pr.result);
+		result.push_back(first_pr.result);
 		while (true)
 		{
-			auto pr = _parser(input, current_pos);
+			const auto pr = _parser(input, current_pos);
 			if (!pr.success) break;
 			result.push_back(pr.result);
 		}

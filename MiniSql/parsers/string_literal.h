@@ -19,7 +19,7 @@ namespace minisql::parser
 	};
 
 	/* implementation */
-	auto string_literal::parse(const std::string& input, unsigned& current_pos) const -> parse_result<std::string>
+	inline auto string_literal::parse(const std::string& input, unsigned& current_pos) const -> parse_result<std::string>
 	{
 		auto current_it = input.begin() + current_pos;
 		const std::string_view input_view(input.c_str() + current_pos, expected.size());

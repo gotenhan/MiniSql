@@ -86,11 +86,13 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,7 +151,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MiniSql.cpp" />
-    <ClCompile Include="parsers\zero_or_more.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parsers\number.h" />
@@ -164,7 +165,13 @@
     <ClInclude Include="parsers\parse_result.h" />
     <ClInclude Include="parsers\string_literal.h" />
     <ClInclude Include="parsers\zero_or_more.h" />
-    <ClInclude Include="query.h" />
+    <ClInclude Include="query_ast.h" />
+    <ClInclude Include="query_ast\ast_base.h" />
+    <ClInclude Include="query_ast\expression.h" />
+    <ClInclude Include="query_ast\select.h" />
+    <ClInclude Include="query_parser.h" />
+    <ClInclude Include="query_parser\expression.h" />
+    <ClInclude Include="query_parser\select.h" />
     <ClInclude Include="variadic_placeholder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

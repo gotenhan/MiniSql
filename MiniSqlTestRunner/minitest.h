@@ -132,7 +132,7 @@ namespace minitest
 			}
 		}
 
-		static void is_true(bool result, const std::string& failure_message = "expected true but got false")
+		static void is_true(bool result, const std::string& failure_message = "expected true but got false"s)
 		{
 			if(!result)
 			{
@@ -141,7 +141,7 @@ namespace minitest
 		}
 
 		template <typename TPredicate, typename ...TArgs>
-		static void is_true(TPredicate predicate, TArgs... args, const std::string& failure_message = "expected true but got false")
+		static void is_true(TPredicate predicate, TArgs... args, const std::string& failure_message = "expected true but got false"s)
 		{
 			const bool result = predicate(args...);
 			if(!result)
@@ -154,7 +154,7 @@ namespace minitest
 		static void are_equal(const T& arg1, const T& arg2)
 		{
 			std::ostringstream str;
-			str << "Expected [" << arg1 << "] to be equal to [" << arg2 << "]";
+			str << "Expected [" << arg2 << "] to be equal to [" << arg1 << "]";
 			is_true<std::equal_to<T>, T, T>({}, arg1, arg2, str.str());
 		}
 	};

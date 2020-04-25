@@ -21,7 +21,7 @@ namespace minisql::parser
 				return str;
 			};
 
-			const auto number_parser = make_combine<std::string, decltype(func)>
+			const auto number_parser = make_combine<std::string>
 				(
 					func,
 					optional(choice<char, character, character>(character('-'), character('+')), '+'),

@@ -75,19 +75,18 @@ namespace minisql::parser
 		if (result_rest.success)
 		{
 			current_pos = new_pos;
-			return ok(result.result);
+			return ok(result_rest.result);
 		}
 
-		return this->error_message<TVal>(input, current_pos);
+		return this->template error_message<TVal>(input, current_pos);
 	}
 
 	template <typename TVal, typename ... TParsers>
 	auto choice<TVal, TParsers...>::parse(const std::string& input, unsigned& current_pos) const -> parse_result<TVal>
 	{
-		unsigned new_pos = 0;
-		auto fold_func = [this, &input, &new_pos](auto&& ...args)
+		auto fold_func = [this, &input, &current_pos](auto&& ...args)
 		{
-			return this->fold(input, new_pos, std::forward<decltype(args)>(args)...);
+			return this->fold(input, current_pos, std::forward<decltype(args)>(args)...);
 		};
 		return std::apply(fold_func, parsers);
 	}

@@ -19,15 +19,11 @@ namespace minisql::parser
 
 		parser_base_notemplate(parser_base_notemplate&& other) noexcept = default;
 
-		parser_base_notemplate& operator=(const parser_base_notemplate& other) = default;
-
-		parser_base_notemplate& operator=(parser_base_notemplate&& other) noexcept = default;
-
 		template<typename TFirst, typename ...TRest>
 		[[nodiscard]] static std::string to_string_rec(const TFirst& first, const TRest& ...rest);
 	public:
 		[[nodiscard]] virtual std::string to_string() const = 0;
-
+		virtual ~parser_base_notemplate() = default;
 	};
 
 	template <typename TVal>
@@ -39,11 +35,11 @@ namespace minisql::parser
 		using result_type = parse_result<TVal>;
 
 		auto operator()(const std::string& input, unsigned& current_pos) const -> parse_result<TVal>;
-		virtual ~parser_base();
 	protected:
 		parser_base();
 		parser_base(parser_base<TVal>&&) noexcept;
 		parser_base(const parser_base<TVal>&);
+
 		template <typename TError=TVal>
 		auto error_message(const std::string& input, unsigned pos) const -> parse_result<TError>;
 	};
@@ -68,21 +64,12 @@ namespace minisql::parser
 			return first.to_string() + ", "s + parser_base_notemplate::to_string_rec(rest...);
 	}
 
+
 	template <typename TVal>
 	auto parser_base<TVal>::operator()(const std::string& input, unsigned& current_pos) const -> parse_result<TVal>
 	{
-		if (current_pos < input.size())
-		{
-			return parse(input, current_pos);
-		}
-		else
-		{
-			return failure<TVal>( "Expected "s + this->to_string() + " but got end of string" );
-		}
+		return parse(input, current_pos);
 	}
-
-	template <typename TVal>
-	parser_base<TVal>::~parser_base() = default;
 
 	template <typename TVal>
 	parser_base<TVal>::parser_base() = default;
@@ -93,14 +80,15 @@ namespace minisql::parser
 	template <typename TVal>
 	parser_base<TVal>::parser_base(const parser_base<TVal>&) = default;
 
+
 	template <typename TVal>
 	template <typename TError>
 	auto parser_base<TVal>::error_message(const std::string& input, unsigned pos) const -> parse_result<TError>
 	{
-		return failure<TError>(
-			"Pos "s + std::to_string(pos) + ": Expected "s + to_string() + " but got "s + input.substr(
-				pos, std::min(input.size() - pos, 10u))
-		);
+		const std::string msg = pos < input.size()
+			? input.substr(pos, std::min(input.size() - pos, 10u))
+			: "end of string";
+		return failure<TError>("Pos "s + std::to_string(pos) + ": Expected "s + to_string() + " but got "s + msg);
 	}
 
 	template <typename TVal>

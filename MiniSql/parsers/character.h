@@ -9,6 +9,9 @@ namespace minisql::parser
 		[[nodiscard]] virtual auto is_match(const char c) const -> bool = 0;
 		auto parse(const std::string& input, unsigned& current_pos) const -> parse_result<char> override
 		{
+			if (current_pos >= input.size())
+				return error_message(input, current_pos);
+
 			char c = input[current_pos];
 
 			if (!is_match(c))
@@ -61,7 +64,7 @@ namespace minisql::parser
 	public:
 		[[nodiscard]] auto to_string() const -> std::string override { return "whitespace"; }
 	protected:
-		[[nodiscard]] auto is_match(const char c) const -> bool override { return std::isalpha(c); }
+		[[nodiscard]] auto is_match(const char c) const -> bool override { return std::isalnum(c); }
 	};
 
 }
