@@ -140,7 +140,7 @@ namespace minitest
 		}
 
 		template <typename TPredicate, typename ...TArgs>
-		static void is_true(TPredicate predicate, TArgs... args, const std::string& failure_message = "expected true but got false"s)
+		static void is_true(TPredicate predicate, const TArgs&... args, const std::string& failure_message = "expected true but got false"s)
 		{
 			const bool result = predicate(args...);
 			if(!result)

@@ -31,6 +31,7 @@ namespace minisql::parsers
 		const std::string_view expected_view(expected);
 		if (input_view == expected_view)
 		{
+			current_pos += expected.size();
 			return ok(expected);
 		}
 		return failure<std::string>( "Expected " + expected + " but got " + std::string(input_view.begin(), input_view.end()));

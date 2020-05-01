@@ -43,6 +43,30 @@ namespace minisql::parsers
 	template <typename TParser>
 	auto constexpr double_quotes(TParser parser) { return character('"') >> parser << character('"'); }
 
+	struct unit {};
+	template <typename TParser>
+	class not_p : public parser_base<unit>
+	{
+		const TParser underlying;
+
+		auto parse(const std::string& input, unsigned& current_pos) const -> parse_result<unit> override
+		{
+			unsigned new_pos = current_pos;
+			const auto pr = underlying(input, new_pos);
+			if(pr.success)
+			{
+				return error_message<unit>(input, current_pos);
+			}
+			else
+			{
+				return ok(unit());
+			}
+		}
+	public:
+		not_p(TParser underlying) : underlying(std::move(underlying)) {}
+		[[nodiscard]] std::string to_string() const override { return "something different than " + underlying.to_string(); }
+	};
+
 	/*
 	template<typename TParser1, typename TParser2>
 	class followed_by final : public parser<typename TParser1::value_type>

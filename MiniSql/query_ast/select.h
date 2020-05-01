@@ -6,6 +6,7 @@
 
 namespace minisql::query_ast
 {
+	/*
 	struct from_clause : public ast_base
 	{
 	};
@@ -33,4 +34,5 @@ namespace minisql::query_ast
 	{
 		const std::unique_ptr<arith_expression_base> expression;
 	};
+*/
 }

@@ -8,9 +8,11 @@
 namespace minisql::query_parser::tests
 {
 	using namespace minitest;
+	using namespace query_ast;
 
 	struct expression_tests : public test_fixture<expression_tests>
 	{
+
 		expression_tests()
 		{
 			using namespace std::literals;
@@ -19,7 +21,7 @@ namespace minisql::query_parser::tests
 			test<tcn>("parses number values", [](const auto& s, const auto& e)
 				{
 					unsigned pos = 0;
-					const auto parser = binary_op_expression();
+					const auto parser = expression();
 					const auto pr = parser(s, pos);
 					is_true(pr.success, "expected parsing to succeed");
 					const auto result = std::dynamic_pointer_cast<query_ast::number>(pr.result);
@@ -35,7 +37,7 @@ namespace minisql::query_parser::tests
 			test<tci>("parses identifier", [](const auto& s, const auto& e)
 				{
 					unsigned pos = 0;
-					const auto parser = binary_op_expression();
+					const auto parser = expression();
 					const auto pr = parser(s, pos);
 					is_true(pr.success, "expected parsing to succeed");
 					const auto result = std::dynamic_pointer_cast<query_ast::identifier>(pr.result);
@@ -50,10 +52,10 @@ namespace minisql::query_parser::tests
 			test("parses null", []()
 				{
 					unsigned pos = 0;
-					const auto parser = binary_op_expression();
+					const auto parser = expression();
 					const auto pr = parser("null", pos);
 					is_true(pr.success);
-					const auto result = std::dynamic_pointer_cast<query_ast::null>(pr.result);
+					const auto result = std::dynamic_pointer_cast<null>(pr.result);
 					is_true(result != nullptr, "expected a null");
 				});
 
@@ -61,10 +63,10 @@ namespace minisql::query_parser::tests
 				{
 					{
 						unsigned pos = 0;
-						const auto parser = binary_op_expression();
+						const auto parser = expression();
 						const auto pr = parser("1+3", pos);
 						is_true(pr.success);
-						const auto result = std::dynamic_pointer_cast<query_ast::binary_op_expression>(pr.result);
+						const auto result = std::dynamic_pointer_cast<binary_op_expression>(pr.result);
 						is_true(result != nullptr, "expected a binary + expression");
 						const auto left = std::dynamic_pointer_cast<query_ast::number>(result->left);
 						const auto right = std::dynamic_pointer_cast<query_ast::number>(result->right);
@@ -75,10 +77,10 @@ namespace minisql::query_parser::tests
 
 					{
 						unsigned pos = 0;
-						const auto parser = binary_op_expression();
+						const auto parser = expression();
 						const auto pr = parser("6*7", pos);
 						is_true(pr.success);
-						const auto result = std::dynamic_pointer_cast<query_ast::binary_op_expression>(pr.result);
+						const auto result = std::dynamic_pointer_cast<binary_op_expression>(pr.result);
 						is_true(result != nullptr, "expected a binary * expression");
 						const auto left = std::dynamic_pointer_cast<query_ast::number>(result->left);
 						const auto right = std::dynamic_pointer_cast<query_ast::number>(result->right);
@@ -91,42 +93,78 @@ namespace minisql::query_parser::tests
 			test("parsers complex expressions", []()
 				{
 					unsigned pos = 0;
-					const auto parser = binary_op_expression();
+					const auto parser = expression();
 					const auto pr = parser("1+3+(4+5)", pos);
 					is_true(pr.success);
-					const auto result = std::dynamic_pointer_cast<query_ast::binary_op_expression>(pr.result);
-					is_true(result != nullptr, "expected a binary op expression");
-					const auto left_expr = std::dynamic_pointer_cast<query_ast::binary_op_expression>(result->left);
-					const auto right_expr = std::dynamic_pointer_cast<query_ast::binary_op_expression>(result->right);
-					is_true(left_expr != nullptr && right_expr != nullptr);
-					const auto one = std::dynamic_pointer_cast<query_ast::number>(left_expr->left);
-					const auto three = std::dynamic_pointer_cast<query_ast::number>(left_expr->right);
-					const auto four = std::dynamic_pointer_cast<query_ast::number>(right_expr->left);
-					const auto five = std::dynamic_pointer_cast<query_ast::number>(right_expr->right);
-					are_equal(*one, query_ast::number(1));
-					are_equal(*three, query_ast::number(3));
-					are_equal(*four, query_ast::number(4));
-					are_equal(*five, query_ast::number(5));
+					const auto result = std::dynamic_pointer_cast<binary_op_expression>(pr.result);
+					const auto& expected_ptr = build(
+						build(
+							build(1.0),
+							'+',
+							build(3.0)),
+						'+',
+						build(
+							build(4.0),
+							'+',
+							build(5.0)
+						)
+					);
+
+					are_equal(*expected_ptr, *pr.result);
 				});
 
 			test("parsers expressions with different op priorities", []()
 				{
 					unsigned pos = 0;
-					const auto parser = binary_op_expression();
+					const auto parser = expression();
 					const auto pr = parser("1+2*3", pos);
 					is_true(pr.success);
-					const auto result = std::dynamic_pointer_cast<query_ast::binary_op_expression>(pr.result);
-					is_true(result != nullptr, "expected a binary op expression");
-					const auto left_expr = std::dynamic_pointer_cast<query_ast::number>(result->left);
-					const auto right_expr = std::dynamic_pointer_cast<query_ast::binary_op_expression>(result->right);
-					is_true(left_expr != nullptr && right_expr != nullptr);
-					const auto one = std::dynamic_pointer_cast<query_ast::number>(left_expr);
-					const auto two = std::dynamic_pointer_cast<query_ast::number>(right_expr->left);
-					const auto three = std::dynamic_pointer_cast<query_ast::number>(right_expr->right);
-					are_equal(*one, query_ast::number(1));
-					are_equal(*two, query_ast::number(2));
-					are_equal(*three, query_ast::number(3));
+
+					const auto& expected_ptr = build(
+						build(1.0),
+						'+',
+						build(
+							build(2.0),
+							'*',
+							build(3.0)
+						)
+					);
+
+					are_equal(*expected_ptr, *pr.result);
+				});
+
+			test("parsers complex expressions with nulls and identifiers and booleans and strings", []()
+				{
+					unsigned pos = 0;
+					const auto parser = expression();
+					const auto pr = parser("true+null*some_id/'some_string *#/'*3+''", pos);
+					is_true(pr.success);
+
+					const auto& expected_ptr = build(
+						build(
+							build(true),
+							'+',
+							build(
+								build(
+									build(build(), '*', build<query_ast::identifier>("some_id")),
+									'/',
+									build<string>("some_string *#/")),
+								'*',
+								build(3.0))),
+						'+',
+						build<query_ast::string>(""));
+
+					are_equal(*expected_ptr, *pr.result);
 				});
 		}
+
+		static expression_base_ptr build(const double d) { return std::make_shared<query_ast::number>(d); }
+		static expression_base_ptr build(const bool b) { return std::make_shared<query_ast::boolean>(b); }
+		static expression_base_ptr build() { return std::make_shared<null>(); }
+		static expression_base_ptr build(expression_base_ptr left, char op, expression_base_ptr right) { return std::make_shared<binary_op_expression>(left, binary_arith_op(op), right); }
+
+		template <typename T> static expression_base_ptr build(const std::string& s) { static_assert(false, "should not be called"); return nullptr; }
+		template<> static inline expression_base_ptr build<query_ast::identifier>(const std::string& s) { return std::make_shared<query_ast::identifier>(s); }
+		template<> static inline expression_base_ptr build<string>(const std::string& s) { return std::make_shared<string>(s); }
 	} expression_tests_i;
 }

@@ -12,13 +12,19 @@ namespace minisql::query_parser
 
 	namespace detail
 	{
-		inline const auto value_p =
-			(number() >>= [](const double d) { return std::make_shared<query_ast::number>(d); }) ||
-			(string_literal("null") >>= [](const std::string& s) { return std::make_shared<query_ast::null>(); }) ||
-			(
-				string_literal("true") || string_literal("false")
-				>>= [](const std::string& s) { return std::make_shared<query_ast::boolean>(s == "true"s); }
-			) || cast<query_ast::expression_base_ptr>();
+		inline const auto quoted_string_p =
+			single_quotes(zero_or_more(character('\\') >> character('\'') || not_char('\''))) >>= [](const std::vector<char>& v)
+		{
+			return std::make_shared<query_ast::string>(std::string(v.begin(), v.end()));
+		};
+		inline const auto boolean_p = string_literal("true") || string_literal("false") >>= [](const std::string& s)
+		{
+			return std::make_shared<query_ast::boolean>(s == "true"s);
+		};
+		inline const auto null_p = (string_literal("null") >>= [](const std::string& s) { return std::make_shared<query_ast::null>(); });
+		inline const auto number_p = (number() >>= [](const double d) { return std::make_shared<query_ast::number>(d); });
+
+		inline const auto value_p = number_p || quoted_string_p || null_p || boolean_p || cast<query_ast::expression_base_ptr>();
 		
 	}
 	struct value : public parser<decltype(detail::value_p)>
@@ -50,17 +56,17 @@ namespace minisql::query_parser
 	 *  term ::= factor ('*' factor)*
 	 *  factor = value() || identifier || between '(' ')' expression
 	 */
+	struct expression : public parser_base<query_ast::expression_base_ptr>
+	{
+		[[nodiscard]] std::string to_string() const override { return "arithmetic expression"; }
+	private:
+		auto parse(const std::string& input, unsigned& current_pos) const
+			-> result_type
+		override;
+	};
+
 	namespace detail
 	{
-		struct expression : public parser_base<query_ast::expression_base_ptr>
-		{
-			[[nodiscard]] std::string to_string() const override { return "arithmetic expression"; }
-		private:
-			auto parse(const std::string& input, unsigned& current_pos) const
-				-> result_type
-			override;
-		};
-
 		inline auto addition_operator()
 		{
 			return parser(
@@ -96,34 +102,22 @@ namespace minisql::query_parser
 					});
 			};
 		}
-
-		inline auto expression::parse(const std::string& input, unsigned& current_pos) const
-			-> result_type
-		{
-			const auto parser = term() && zero_or_more(addition_operator() && term()) >>= [](auto&& res)
-			{
-				const auto& [e1, rest] = res;
-				if (rest.empty()) return e1;
-				return std::accumulate(rest.begin(), rest.end(), e1, [](auto&& left, auto&& next)
-					{
-						const auto& [op, right] = next;
-						return std::make_shared<query_ast::binary_op_expression>(left, op, right);
-					});
-			};
-			return parser(input, current_pos);
-		}
-
 	}
 
-	struct binary_op_expression : public parser<decltype(detail::expression())>
+	inline auto expression::parse(const std::string& input, unsigned& current_pos) const
+		-> result_type
 	{
-		binary_op_expression() : parser("binary operator expression", detail::expression()) {}
-		/*
-		binary_op_expression() :
-			parser("binary operator expression", just(std::make_shared<query_ast::binary_op_expression>(
-				std::make_shared<query_ast::number>(-1.1),
-				query_ast::binary_arith_op::add,
-				std::make_shared<query_ast::number>(-2)))) {}
-	*/
-	};
+		using namespace detail;
+		const auto parser = term() && zero_or_more(addition_operator() && term()) >>= [](auto&& res)
+		{
+			const auto& [e1, rest] = res;
+			if (rest.empty()) return e1;
+			return std::accumulate(rest.begin(), rest.end(), e1, [](auto&& left, auto&& next)
+				{
+					const auto& [op, right] = next;
+					return std::make_shared<query_ast::binary_op_expression>(left, op, right);
+				});
+		};
+		return parser(input, current_pos);
+	}
 }
