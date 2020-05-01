@@ -47,6 +47,7 @@ namespace minisql::query_parser::tests
 				{
 					{"_abc", query_ast::identifier("_abc"s) },
 					{ "n12_13", query_ast::identifier("n12_13"s) },
+					{"nullident", query_ast::identifier("nullident") }
 				});
 
 			test("parses null", []()
@@ -156,12 +157,28 @@ namespace minisql::query_parser::tests
 
 					are_equal(*expected_ptr, *pr.result);
 				});
+
+			using tc = std::tuple<std::string, expression_base_ptr>;
+			test<tc>("parsers boolean expressions", [](const auto& s, expression_base_ptr expected)
+				{
+					unsigned pos = 0;
+					const auto pr = expression()(s, pos);
+					is_true(pr.success);
+					are_equal(*expected, *pr.result);
+				}, {
+						{"1 > 0", build(build(1.0), '>', build(0.0))},
+						{"1 + 3 <= 0", build(build(build(1.0), '+', build(3.0)), 243, build(0.0))},
+						{"(1 >= 0) + (3 = null)", build(
+							build(build(1.0), 242, build(0.0)),
+							'+',
+							build(build(3.0), '=', build()))} // this is correct as far as parser is concerned, to be rejected or coerced to number at later stage
+				});
 		}
 
 		static expression_base_ptr build(const double d) { return std::make_shared<query_ast::number>(d); }
 		static expression_base_ptr build(const bool b) { return std::make_shared<query_ast::boolean>(b); }
 		static expression_base_ptr build() { return std::make_shared<null>(); }
-		static expression_base_ptr build(expression_base_ptr left, char op, expression_base_ptr right) { return std::make_shared<binary_op_expression>(left, binary_arith_op(op), right); }
+		static expression_base_ptr build(expression_base_ptr left, char op, expression_base_ptr right) { return std::make_shared<binary_op_expression>(left, binary_op(op), right); }
 
 		template <typename T> static expression_base_ptr build(const std::string& s) { static_assert(false, "should not be called"); return nullptr; }
 		template<> static inline expression_base_ptr build<query_ast::identifier>(const std::string& s) { return std::make_shared<query_ast::identifier>(s); }
