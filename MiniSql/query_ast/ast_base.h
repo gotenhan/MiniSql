@@ -12,7 +12,10 @@ namespace minisql::query_ast
 			string,
 			null,
 			identifier,
-			binary_aop
+			binary_aop,
+			select,
+			from,
+			where
 		};
 
 		kind_t kind;
@@ -20,9 +23,17 @@ namespace minisql::query_ast
 		ast_base(const ast_base& other) = default;
 		ast_base(ast_base&& other) = default;
 
-		virtual std::string to_string() const = 0;
-		bool operator==(const ast_base& other) const { return is_equal(other); }
+		[[nodiscard]] virtual std::string to_string() const = 0;
+		[[nodiscard]] bool operator==(const ast_base& other) const { return this->is_equal(other); }
 
-		virtual bool is_equal(const ast_base& other) const = 0;
+		[[nodiscard]] virtual bool is_equal(const ast_base& other) const = 0;
+		virtual ~ast_base() = default;
 	};
+
+	inline std::ostream& operator<<(std::ostream& out, const ast_base& aeb)
+	{
+		out << aeb.to_string();
+		return out;
+	}
+
 }

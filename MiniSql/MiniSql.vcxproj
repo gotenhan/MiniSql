@@ -155,7 +155,6 @@
     <ClInclude Include="parsers.h" />
     <ClInclude Include="parsers\character.h" />
     <ClInclude Include="parsers\seq.h" />
-    <ClInclude Include="parsers\followed_by.h" />
     <ClInclude Include="parsers\one_or_more.h" />
     <ClInclude Include="parsers\optional.h" />
     <ClInclude Include="parsers\choice.h" />

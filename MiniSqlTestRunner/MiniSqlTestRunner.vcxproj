@@ -160,8 +160,10 @@
     <ClCompile Include="identifier_tests.cpp" />
     <ClCompile Include="MiniSqlTestRunner.cpp" />
     <ClCompile Include="number_tests.cpp" />
+    <ClCompile Include="select_tests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ast_helper.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="minitest.h" />
   </ItemGroup>

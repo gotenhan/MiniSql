@@ -15,12 +15,6 @@ namespace minisql::query_ast
 		arith_expression_base(arith_expression_base&&) = default;
 	};
 
-	inline std::ostream& operator<<(std::ostream& out, const arith_expression_base& aeb)
-	{
-		out << aeb.to_string();
-		return out;
-	}
-
 	using expression_base_ptr = std::shared_ptr<arith_expression_base>;
 
 	struct identifier : public arith_expression_base

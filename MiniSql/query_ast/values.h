@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <ostream>
+#include "ast_base.h"
+#include "expression.h"
 
 namespace minisql::query_ast
 {
