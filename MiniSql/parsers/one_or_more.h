@@ -1,7 +1,10 @@
 #pragma once
+#include <utility>
+
+
 #include "parser_base.h"
 
-namespace minisql::parser
+namespace minisql::parsers
 {
 	template <typename TParser, typename TVal = typename TParser::value_type>
 	class one_or_more final : public parser_base<std::vector<TVal>>
@@ -9,13 +12,13 @@ namespace minisql::parser
 		TParser _parser;
 		auto parse(const std::string& input, unsigned& current_pos) const -> parse_result<std::vector<TVal>> override;
 	public:
-		one_or_more(const TParser& p);
+		one_or_more(TParser p);
 		[[nodiscard]] std::string to_string() const override;
 	};
 
 	/* implementation */
 	template <typename TParser, typename TVal>
-	one_or_more<TParser, TVal>::one_or_more(const TParser& p): _parser(p)
+	one_or_more<TParser, TVal>::one_or_more(TParser p): _parser(std::move(p))
 	{
 	}
 

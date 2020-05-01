@@ -3,7 +3,7 @@
 #include "minitest.h"
 
 
-namespace minisql::parser::tests
+namespace minisql::parsers::tests
 {
 	using namespace minitest;
 	using namespace std::literals;
@@ -46,19 +46,24 @@ namespace minisql::parser::tests
 
 			test("parses nans", [&parser]()
 				{
-					unsigned pos;
+					unsigned pos = 0;
 					const auto pr = parser("NaN", pos);
 					is_true<decltype(std::isnan<double>), double>(std::isnan, pr.result);
 				});
 			test("parses infs", [&parser]()
 				{
-					unsigned pos;
-					const auto pr = parser("Inf", pos);
-					is_true<decltype(std::isinf<double>), double>(std::isinf, pr.result);
-					is_true<std::greater<double>, double, double>({}, pr.result, 0);
-					const auto pr2 = parser("-Inf", pos);
-					is_true<decltype(std::isinf<double>), double>(std::isinf, pr2.result);
-					is_true<std::less<double>, double, double>({}, pr.result, 0);
+					{
+						unsigned pos = 0;
+						const auto pr = parser("Inf", pos);
+						is_true<decltype(std::isinf<double>), double>(std::isinf, pr.result);
+						is_true<std::greater<double>, double, double>({}, pr.result, 0);
+					}
+					{
+						unsigned pos = 0;
+						const auto pr = parser("-Inf", pos);
+						is_true<decltype(std::isinf<double>), double>(std::isinf, pr.result);
+						is_true<std::less<double>, double, double>({}, pr.result, 0);
+					}
 				});
 		}
 	} number_tests_i;

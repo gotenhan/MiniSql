@@ -6,7 +6,7 @@
 namespace minisql::query_parser
 {
 	/*
-	using namespace parser;
+	using namespace parsers;
 	class column_expression final : parser_base<query_ast::column_expression>
 	{
 	public:

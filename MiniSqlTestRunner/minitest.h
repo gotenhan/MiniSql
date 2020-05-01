@@ -5,11 +5,12 @@
 #include <sstream>
 #include <tuple>
 #include <vector>
-
-using namespace std::literals;
+#include "color.h"
 
 namespace minitest
 {
+	using namespace std::literals;
+
 	template<typename Type, unsigned N, unsigned Last>
 	struct tuple_printer {
 
@@ -36,7 +37,6 @@ namespace minitest
 		return out;
 	}
 
-
 	template <typename ...TArgs>
 	struct test_case
 	{
@@ -51,7 +51,6 @@ namespace minitest
 		stream << test_case.name;
 		return stream;
 	}
-
 
 	struct failure 
 	{
@@ -101,15 +100,15 @@ namespace minitest
 				try {
 					std::apply(test_method, get_args(t));
 
-					std::cout << "[PASSED] [" << fixture_name() << "] [" << test_name << "] [" << t << "]" << std::endl;
+					std::cout << hue::green << "[PASSED] [" << fixture_name() << "] [" << test_name << "] [" << t << "]" <<  hue::reset  << std::endl;
 				}
 				catch (const failure& f)
 				{
-					std::cout << "[FAILED] [" << fixture_name() << "] [" << test_name << "] [" << t << "] : " << f.message << std::endl;
+					std::cout << hue::red << "[FAILED] [" << fixture_name() << "] [" << test_name << "] [" << t << "] : " << f.message << hue::reset << std::endl;
 				}
 				catch (...)
 				{
-					std::cout << "[ERROR] [" << fixture_name() << "] [" << test_name << "] [" << t << "] : exception thrown" << std::endl;
+					std::cout << hue::yellow << "[ERROR] [" << fixture_name() << "] [" << test_name << "] [" << t << "] : exception thrown" << hue::reset << std::endl;
 				}
 			}
 		}
@@ -120,15 +119,15 @@ namespace minitest
 			try {
 				test_method();
 
-				std::cout << "[PASSED] [" << fixture_name() << "] [" << test_name << "]" << std::endl;
+				std::cout << hue::green << "[PASSED] [" << fixture_name() << "] [" << test_name << "]" << hue::reset << std::endl;
 			}
 			catch (const failure& f)
 			{
-				std::cout << "[FAILED] [" << fixture_name() << "] [" << test_name << "] : " << f.message << std::endl;
+				std::cout << hue::red << "[FAILED] [" << fixture_name() << "] [" << test_name << "] : " << f.message << hue::reset << std::endl;
 			}
 			catch (...)
 			{
-				std::cout << "[ERROR] [" << fixture_name() << "] [" << test_name << "] : exception thrown" << std::endl;
+				std::cout << hue::yellow << "[ERROR] [" << fixture_name() << "] [" << test_name << "] : exception thrown" << hue::reset << std::endl;
 			}
 		}
 
@@ -150,12 +149,13 @@ namespace minitest
 			}
 		}
 
-		template <typename T>
-		static void are_equal(const T& arg1, const T& arg2)
+		template <typename T1>
+		static void are_equal(const T1& arg1, const T1& arg2)
 		{
 			std::ostringstream str;
+			using std::to_string;
 			str << "Expected [" << arg2 << "] to be equal to [" << arg1 << "]";
-			is_true<std::equal_to<T>, T, T>({}, arg1, arg2, str.str());
+			is_true<std::equal_to<T1>, T1, T1>({}, arg1, arg2, str.str());
 		}
 	};
 }

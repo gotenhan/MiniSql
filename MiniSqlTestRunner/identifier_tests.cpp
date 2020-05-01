@@ -12,28 +12,28 @@ namespace minisql::query_parser
 					unsigned pos = 0;
 					const auto pr = identifier()("D", pos);
 					is_true(pr.success);
-					are_equal("D"s, pr.result.identifier);
+					are_equal("D"s, pr.result->name);
 				});
 			test("parses multi character identifier", []
 				{
 					unsigned pos = 0;
 					const auto pr = identifier()("some_identifier", pos);
 					is_true(pr.success);
-					are_equal("some_identifier"s, pr.result.identifier);
+					are_equal("some_identifier"s, pr.result->name);
 				});
 			test("parses identifier starting with underscore", []
 				{
 					unsigned pos = 0;
 					const auto pr = identifier()("_underscore", pos);
 					is_true(pr.success);
-					are_equal("_underscore"s, pr.result.identifier);
+					are_equal("_underscore"s, pr.result->name);
 				});
 			test("parses identifier with digits", []
 			{
 					unsigned pos = 0;
 					const auto pr = identifier()("abc123", pos);
 					is_true(pr.success);
-					are_equal("abc123"s, pr.result.identifier);
+					are_equal("abc123"s, pr.result->name);
 			});
 			test<std::string>("does not parse identifier starting with non alpha char or underscore", [](const std::string& s)
 			{

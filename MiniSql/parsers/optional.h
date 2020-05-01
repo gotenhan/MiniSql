@@ -1,7 +1,7 @@
 #pragma once
 #include "parser_base.h"
 
-namespace minisql::parser
+namespace minisql::parsers
 {
 	template <typename TParser>
 	class optional final : public parser_base<typename TParser::value_type>

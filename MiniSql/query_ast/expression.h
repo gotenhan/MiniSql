@@ -1,31 +1,59 @@
 #pragma once
 #include <string>
-#include <variant>
+#include <utility>
 #include "ast_base.h"
 
 namespace minisql::query_ast
 {
-	struct column_identifier : public ast_base
+	struct arith_expression_base
 	{
-		const std::string identifier;
-		column_identifier() : ast_base(""), identifier() {}
-		column_identifier(const std::string& raw) : ast_base(raw), identifier(raw) {}
+		virtual std::string to_string() const = 0;
+	protected:
+		arith_expression_base() = default;
+		arith_expression_base(const arith_expression_base&) = default;
+		arith_expression_base(arith_expression_base&&) = default;
 	};
 
-	struct number : public ast_base
+	inline std::ostream& operator<<(std::ostream& out, const arith_expression_base& aeb)
 	{
-		double value;
-		number(const std::string& raw, double value) : ast_base(raw), value(value) {}
+		out << aeb.to_string();
+		return out;
+	}
+
+	using expression_base_ptr = std::shared_ptr<arith_expression_base>;
+
+	struct identifier : public ast_base, public arith_expression_base
+	{
+		const std::string name;
+		identifier() = default;
+		identifier(std::string identifier) :  name(std::move(identifier)) {}
+
+		std::string to_string() const override { return "identifier(" + name + ")"; }
+
+		friend bool operator==(const identifier& left, const identifier& right) { return left.name == right.name; }
 	};
 
-	struct expression : public ast_base
-	{
-		using expression_t = std::variant<number, column_identifier>;
-		const expression_t expr;
+	using identifier_ptr = std::shared_ptr<identifier>;
 
-		expression(const std::string& raw, const number& val) : ast_base(raw), expr(val) {}
-		expression(const std::string& raw, const column_identifier& val) : ast_base(raw), expr(val) {}
-		expression(const std::string& raw, const expression_t& val) : ast_base(raw), expr(val) {}
+	enum class binary_arith_op : char {
+		add = '+',
+		sub = '-',
+		mul = '*',
+		div = '/',
+		mod = '%'
 	};
 
+	struct binary_op_expression : public ast_base, public arith_expression_base
+	{
+		const std::shared_ptr<arith_expression_base> left;
+		const std::shared_ptr<arith_expression_base> right;
+		const binary_arith_op op;
+		binary_op_expression(std::shared_ptr<arith_expression_base> left,
+			binary_arith_op op,
+			std::shared_ptr<arith_expression_base> right) : left(std::move(left)), right(std::move(right)), op(op){}
+		std::string to_string() const override
+		{
+			return left->to_string() + static_cast<char>(op) + right->to_string();
+		}
+	};
 }

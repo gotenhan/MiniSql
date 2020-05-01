@@ -1,7 +1,7 @@
 #pragma once
 #include "parser_base.h"
 
-namespace minisql::parser
+namespace minisql::parsers
 {
 	class character_base : public parser_base<char>
 	{
@@ -12,7 +12,7 @@ namespace minisql::parser
 			if (current_pos >= input.size())
 				return error_message(input, current_pos);
 
-			char c = input[current_pos];
+			const char c = input[current_pos];
 
 			if (!is_match(c))
 				return error_message(input, current_pos);

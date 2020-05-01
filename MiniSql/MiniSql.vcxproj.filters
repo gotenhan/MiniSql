@@ -18,11 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MiniSql.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="variadic_placeholder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -30,9 +25,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="parsers\parser_base.h">
-      <Filter>Header Files\parsers</Filter>
-    </ClInclude>
-    <ClInclude Include="parsers\combine.h">
       <Filter>Header Files\parsers</Filter>
     </ClInclude>
     <ClInclude Include="parsers\character.h">
@@ -82,6 +74,15 @@
     </ClInclude>
     <ClInclude Include="query_parser\expression.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="query_ast\values.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers\seq.h">
+      <Filter>Header Files\parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers\combinators.h">
+      <Filter>Header Files\parsers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

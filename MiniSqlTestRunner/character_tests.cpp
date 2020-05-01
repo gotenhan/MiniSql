@@ -2,7 +2,7 @@
 #include "minitest.h"
 
 
-namespace minisql::parser::tests
+namespace minisql::parsers::tests
 {
 	using namespace minitest;
 	using namespace std::literals;
@@ -13,7 +13,7 @@ namespace minisql::parser::tests
 		{
 			// character tests
 			{
-				auto parser = minisql::parser::character('a');
+				auto parser = minisql::parsers::character('a');
 				test("parsers specific character", [&parser]()
 					{
 						unsigned pos = 0;
@@ -35,29 +35,28 @@ namespace minisql::parser::tests
 						unsigned pos = 7;
 						const auto pr = parser("abcd", pos);
 						is_true(!pr.success);
-						are_equal("Expected 'a' but got end of string"s, pr.error);
+						are_equal("Pos 7: Expected 'a' but got end of string"s, pr.error);
 					});
-
 			}
 
 			// whitespace tests
 			{
-				const auto parser = minisql::parser::whitespace();
+				const auto parser = minisql::parsers::whitespace();
 				test("parses whitespace", [&parser]()
 					{
 						unsigned pos = 0;
 						{
-							auto pr = parser(" \t\nabcd", pos);
+							const auto pr = parser(" \t\nabcd", pos);
 							is_true(pr.success);
 							are_equal(' ', pr.result);
 						}
 						{
-							auto pr = parser(" \t\nabcd", pos);
+							const auto pr = parser(" \t\nabcd", pos);
 							is_true(pr.success);
 							are_equal('\t', pr.result);
 						}
 						{
-							auto pr = parser(" \t\nabcd", pos);
+							const auto pr = parser(" \t\nabcd", pos);
 							is_true(pr.success);
 							are_equal('\n', pr.result);
 						}
@@ -66,7 +65,7 @@ namespace minisql::parser::tests
 				test("fails to parse whitespace when other character found", [&parser]()
 					{
 						unsigned pos = 0;
-						auto pr = parser("abcd", pos);
+						const auto pr = parser("abcd", pos);
 						is_true(!pr.success);
 						are_equal("Pos 0: Expected whitespace but got abcd"s, pr.error);
 					});
@@ -74,15 +73,15 @@ namespace minisql::parser::tests
 				test("fails to parse whitespace at end of string", [&parser]()
 					{
 						unsigned pos = 0;
-						auto pr = parser("", pos);
+						const auto pr = parser("", pos);
 						is_true(!pr.success);
-						are_equal("Expected whitespace but got end of string"s, pr.error);
+						are_equal("Pos 0: Expected whitespace but got end of string"s, pr.error);
 					});
 			}
 
 			// digit tests
 			{
-				auto parser = minisql::parser::digit{};
+				auto parser = minisql::parsers::digit{};
 				using tc = std::tuple<std::string, char>;
 				std::vector<tc> test_cases(10);
 				std::generate(test_cases.begin(), test_cases.end(), []()

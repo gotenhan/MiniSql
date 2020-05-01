@@ -3,7 +3,7 @@
 #include "parse_result.h"
 #include "parser_base.h"
 
-namespace minisql::parser
+namespace minisql::parsers
 {
 	class string_literal final : public parser_base<std::string>
 	{
@@ -21,6 +21,11 @@ namespace minisql::parser
 	/* implementation */
 	inline auto string_literal::parse(const std::string& input, unsigned& current_pos) const -> parse_result<std::string>
 	{
+		if(current_pos >= input.size() && !expected.empty())
+		{
+			return error_message(input, current_pos);
+		}
+
 		auto current_it = input.begin() + current_pos;
 		const std::string_view input_view(input.c_str() + current_pos, expected.size());
 		const std::string_view expected_view(expected);
